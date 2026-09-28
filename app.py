@@ -27,7 +27,6 @@ doc_vectors = data["doc_vectors"]
 doc_lengths = data["doc_lengths"]
 games_meta = data["games_meta"]
 
-# Inicijalizacija radnog stanja sesije
 if "query_vector" not in st.session_state:
     st.session_state.query_vector = None
 if "search_results" not in st.session_state:
@@ -40,10 +39,8 @@ if "search_time" not in st.session_state:
 st.title("Pretraživač video igara")
 st.caption("Implementacija Vektorskog modela (TF-IDF) sa Rocchio algoritmom povratne sprege")
 
-# Bočna traka sa parametrima
 with st.sidebar:
     st.subheader("Podešavanja pretrage")
-    # Slajder za broj rezultata (od 5 do 30, po defaultu 10)
     top_k = st.slider("Broj rezultata za prikaz", min_value=5, max_value=30, value=10, step=5)
     
     st.markdown("---")
@@ -59,7 +56,6 @@ with st.sidebar:
         st.session_state.search_time = 0.0
         st.rerun()
 
-# Glavni panel za pretragu
 col_query, col_btn = st.columns([5, 1])
 with col_query:
     user_query = st.text_input("Upit:", placeholder="Unesite ključne reči...", label_visibility="collapsed")
@@ -76,14 +72,12 @@ if search_clicked and user_query:
     st.session_state.search_time = (time.time() - start_time) * 1000
     st.session_state.expanded_terms = []
 
-# Prikaz statusa i modifikovanih termina
 if st.session_state.search_results:
     st.caption(f"Vreme izvršavanja: **{st.session_state.search_time:.2f} ms** | Prikazano: **{len(st.session_state.search_results)}** igara")
 
 if st.session_state.expanded_terms:
     st.info(f"Modifikovan vektor upita. Uvedeni termini: **{', '.join(st.session_state.expanded_terms)}**")
 
-# Prikaz liste rezultata
 if st.session_state.search_results:
     st.subheader("Rezultati")
     selected_docs = []
@@ -101,7 +95,7 @@ if st.session_state.search_results:
                 st.write(meta['desc'])
             st.divider()
 
-    # Dugme za pokretanje povratne sprege
+
     if st.button("Primeni povratnu spregu (Rocchio)", type="primary"):
         if not selected_docs:
             st.warning("Označite bar jedan dokument kao relevantan.")
@@ -114,7 +108,6 @@ if st.session_state.search_results:
             new_terms = set(st.session_state.query_vector.keys()) - old_terms
             st.session_state.expanded_terms = list(new_terms)[:6]
 
-            # Rerangiranje sa istim brojem rezultata (top_k)
             st.session_state.search_results = vector_search(
                 st.session_state.query_vector, inverted_index, idf, doc_lengths, top_k=top_k
             )
